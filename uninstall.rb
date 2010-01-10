@@ -1,0 +1,13 @@
+code = <<-EOF
+#!/usr/bin/env ruby
+require File.dirname(__FILE__) + '/../config/boot'
+require 'commands/plugin'
+EOF
+
+file = "script/plugin"
+if File.exist?(file)
+  File.open(file, 'w'){|f| f.write code }
+else
+  puts "could not find script/plugin, put this in yourself!!!"
+  puts code
+end
