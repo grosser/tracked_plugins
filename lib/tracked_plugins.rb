@@ -105,7 +105,7 @@ module Commands
           if info[:revision] == ::Plugin.repository_revision(info[:uri])
             puts "Plugin is up to date: #{name} (#{info[:revision]})"
           else
-            puts "Reinstalling plugin: #{name}"
+            puts "Reinstalling plugin: #{name} (#{info[:revision]})"
             `script/plugin install --force #{info[:uri]}`
           end
         else

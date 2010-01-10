@@ -146,7 +146,7 @@ describe 'update' do
     change_revision('xxxx')
     plugin_info[:revision].should_not == old_revision
 
-    `cd #{TEST_RAILS} && script/plugin update #{@name}`.strip.should == "Reinstalling plugin: #{@name}"
+    `cd #{TEST_RAILS} && script/plugin update #{@name}`.strip.should == "Reinstalling plugin: #{@name} (xxxx)"
 
     plugin_info[:revision].should == old_revision
   end
