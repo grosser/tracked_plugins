@@ -100,9 +100,60 @@ describe 'list' do
     `rm -rf #{@plugin_folder}`
   end
 
+  def list_info
+    `cd #{TEST_RAILS} && script/plugin list`.split("\n")[1]
+  end
+
   it "displays meta information" do
-    actual = `cd #{TEST_RAILS} && script/plugin list`.split("\n")[1]
-    actual.should =~ %r{^#{@name} #{@uri} [\da-f]+ \d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d$}
+    list_info.should =~ %r{^#{@name} #{@uri} [\da-f]+ \d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d$}
+  end
+
+  it "displays normal information when meta info is missing" do
+    `rm #{@plugin_folder}/PLUGIN_INFO.yml`
+    list_info.should =~ %r{^#{@name}$}
+  end
+end
+
+describe 'update' do
+  before :all do
+    @uri = "git://github.com/grosser/xhr_redirect.git"
+    @name, @plugin_folder = install_plugin(@uri)
+  end
+
+  after :all do
+    `rm -rf #{@plugin_folder}`
+  end
+
+  def info_file
+    "#{@plugin_folder}/PLUGIN_INFO.yml"
+  end
+
+  def plugin_info
+    YAML.load(File.read(info_file))
+  end
+
+  def change_revision(to)
+    info = plugin_info
+    File.open(info_file,'w'){|f| f.write info.merge(:revision => to).to_yaml }
+  end
+
+  it "does not update plugins that do not need update" do
+    `cd #{TEST_RAILS} && script/plugin update #{@name}`.strip.should == "Plugin is up to date: #{@name} (#{plugin_info[:revision]})"
+  end
+
+  it "updates plugins that need update" do
+    old_revision = plugin_info[:revision]
+    change_revision('xxxx')
+    plugin_info[:revision].should_not == old_revision
+
+    `cd #{TEST_RAILS} && script/plugin update #{@name}`.strip.should == "Reinstalling plugin: #{@name}"
+
+    plugin_info[:revision].should == old_revision
+  end
+
+  it "show 'no meta info' for plugins without info" do
+    `rm #{info_file}`
+    `cd #{TEST_RAILS} && script/plugin update #{@name}`.strip.should == "No meta info found: #{@name}"
   end
 end
 

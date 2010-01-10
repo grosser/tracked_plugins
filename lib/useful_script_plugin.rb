@@ -3,6 +3,8 @@ require File.join(File.dirname(__FILE__), 'old_script_plugin')
 # get alias_method_chain
 require 'active_support/core_ext/array'
 require 'active_support/core_ext/module'
+
+# .to_s(:db)
 require 'active_support/core_ext/time'
 
 
@@ -16,29 +18,38 @@ class Plugin
       info =  {
         :uri => @uri,
         :installed_at => Time.now,
-        :revision => repository_revision
+        :revision => self.class.repository_revision(@uri)
       }
       f.write info.to_yaml
     end
   end
-
-  def repository_revision
-    if git_url?
-      temp = '/tmp/get_me_a_revision'
-      `rm -rf #{temp}`
-      `cd /tmp && git clone --no-checkout --depth 1 #{@uri} get_me_a_revision`
-      revision = `cd #{temp} && git log --pretty=format:%H -1`.strip
-      `rm -rf #{temp}`
-      revision
-    else # svn:// or http://
-      `svn info #{@uri}`.match(/Revision: (\d+)/)[1]
-    end
-  end
+  alias_method_chain :run_install_hook, :add_info
 
   def info_yml
     "#{rails_env.root}/vendor/plugins/#{name}/#{INFO_STORAGE}"
   end
-  alias_method_chain :run_install_hook, :add_info
+
+  def self.repository_revision(uri)
+    if self.new(uri).git_url?
+      temp = '/tmp/get_me_a_revision'
+      `rm -rf #{temp}`
+      `cd /tmp && git clone --no-checkout --depth 1 #{uri} get_me_a_revision`
+      revision = `cd #{temp} && git log --pretty=format:%H -1`.strip
+      `rm -rf #{temp}`
+      revision
+    else # svn:// or http://
+      `svn info #{uri}`.match(/Revision: (\d+)/)[1]
+    end
+  end
+
+  def self.info_for_plugin(base, name)
+    file = File.join(base, name, ::Plugin::INFO_STORAGE)
+    if File.exist?(file)
+      YAML.load(File.read(file))
+    else
+      nil
+    end
+  end
 end
 
 module Commands
@@ -59,12 +70,47 @@ module Commands
     end
 
     def info_for_plugin(name)
-      info = File.join(base_dir, name, ::Plugin::INFO_STORAGE)
-      if File.exist?(info)
-        info = YAML.load(File.read(info))
+      if info = ::Plugin.info_for_plugin(base_dir, name)
         "#{name} #{info[:uri]} #{info[:revision]} #{info[:installed_at].to_s(:db)}"
       else
         name
+      end
+    end
+
+    def base_dir
+      "#{@base_command.environment.root}/vendor/plugins"
+    end
+  end
+
+  # overwrite to do revision based updates
+  class Update
+    def initialize(base_command)
+      @base_command = base_command
+    end
+
+    def options
+      OptionParser.new do |o|
+        o.set_summary_indent('  ')
+        o.banner =    "Usage: #{@base_command.script_name} update name"
+        o.on(         "-r REVISION", "--revision REVISION", "Checks out this revision."){ |v| @revision = v }
+        o.define_head "Update plugins by reinstalling them."
+      end
+    end
+
+    def parse!(args)
+      options.parse!(args)
+      args.each do |name|
+        info = ::Plugin.info_for_plugin(base_dir, name)
+        if info and info[:uri]
+          if info[:revision] == ::Plugin.repository_revision(info[:uri])
+            puts "Plugin is up to date: #{name} (#{info[:revision]})"
+          else
+            puts "Reinstalling plugin: #{name}"
+            `script/plugin install --force #{info[:uri]}`
+          end
+        else
+          puts "No meta info found: #{name}"
+        end
       end
     end
 
