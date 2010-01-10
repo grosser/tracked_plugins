@@ -1,7 +1,6 @@
-script/plugin now keeps track of your installation.
-
+script/plugin now keeps track of installation, can list urls/revisions/install-dates and update.
 # Install
-    `script/plugin install git://github.com/grosser/tracked_plugins.git`
+    script/plugin install git://github.com/grosser/tracked_plugins.git
 
 # Usage
 ###Install
