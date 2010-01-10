@@ -8,7 +8,7 @@ As usual:
     script/plugin install git://github.com/grosser/parallel_specs.git
 
 ###List
-With revision and installed_at date
+With revision and installed_at date (for every newly installed plugin)
     script/plugin list
     parallel_specs git://github.com/grosser/parallel_specs.git b195927a98aa351fcefef20730a2fdad7ff3efd5 2010-01-10 15:46:44
 
