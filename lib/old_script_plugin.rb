@@ -208,6 +208,7 @@ class Plugin
     else
       puts "Plugin doesn't exist: #{path}"
     end
+
     # clean up svn:externals
     externals = rails_env.externals
     externals.reject!{|n,u| name == n or name == u}
