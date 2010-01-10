@@ -1,4 +1,6 @@
-script/plugin now keeps track of installation, can list urls/revisions/install-dates and update.
+With tracked_plugins installation stays the same and new meta information
+(url / installed_at / revision / ...) is stored <-> used to update/list plugins.
+
 # Install
     script/plugin install git://github.com/grosser/tracked_plugins.git
 
