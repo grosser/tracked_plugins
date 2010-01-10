@@ -9,14 +9,9 @@ TEST_RAILS = File.join(current, 'spec', 'rails')
 
 # create a new test rails project that has this plugin installed
 `cd #{current}/spec && rails rails`
-`ln -s #{current} #{TEST_RAILS}/vendor/plugins/#{File.basename(current)}`
-File.open("#{TEST_RAILS}/script/plugin", 'w') do |f|
-  f.write <<-EOF
-#!/usr/bin/env ruby
-require File.dirname(__FILE__) + '/../config/boot'
-require 'vendor/plugins/useful_script_plugin/lib/useful_script_plugin'
-  EOF
-end
+copy = "#{TEST_RAILS}/vendor/plugins/#{File.basename(current)}"
+`ln -s #{current} #{copy}`
+`cd #{TEST_RAILS} && ruby -e 'load "#{copy}/install.rb"'` # simulate install hook
 
 def install_plugin(uri)
   `cd #{TEST_RAILS} && script/plugin install #{uri}`
