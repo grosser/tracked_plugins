@@ -7,7 +7,6 @@ require 'active_support/core_ext/module'
 # .to_s(:db)
 require 'active_support/core_ext/time'
 
-
 class Plugin
   INFO_STORAGE = 'PLUGIN_INFO.yml'
 
@@ -18,15 +17,28 @@ class Plugin
       info =  {
         :uri => @uri,
         :installed_at => Time.now,
-        :revision => self.class.repository_revision(@uri)
+        :revision => self.class.repository_revision(@uri),
+        :checksum => self.class.checksum(install_dir)
       }
       f.write info.to_yaml
     end
   end
   alias_method_chain :run_install_hook, :add_info
 
+  def install_dir
+    "#{rails_env.root}/vendor/plugins/#{name}"
+  end
+
   def info_yml
-    "#{rails_env.root}/vendor/plugins/#{name}/#{INFO_STORAGE}"
+    "#{install_dir}/#{INFO_STORAGE}"
+  end
+
+  def self.checksum(dir)
+    %w[md5sum md5].each do |cmd|
+      # make checksum of content, surpress errors
+      return `tar cf - #{dir} 2>/dev/null | #{cmd}`.match(/[\da-f]{32}/)[0] rescue nil
+    end
+    nil
   end
 
   def self.repository_revision(uri)

@@ -56,6 +56,10 @@ describe "installing from git" do
   it "writes correct uri" do
     plugin_info[:uri].should == @uri
   end
+
+  it "writes correct checksum" do
+    plugin_info[:checksum].should =~ /^[\da-f]{32}$/
+  end
 end
 
 describe "installing from svn" do
@@ -171,7 +175,7 @@ describe 'info' do
   end
 
   it "shows basic info" do
-    `cd #{TEST_RAILS} && script/plugin info #{@name}`.strip.should =~ /^installed_at: [^\n]+\nrevision: [\da-f]+\nuri: #{@uri}$/m
+    `cd #{TEST_RAILS} && script/plugin info #{@name}`.strip.should =~ /^checksum: [\da-f]+\ninstalled_at: [^\n]+\nrevision: [\da-f]+\nuri: #{@uri}$/m
   end
 
   it "only shows name when no info is available" do
