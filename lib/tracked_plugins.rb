@@ -52,6 +52,9 @@ class Plugin
   end
 end
 
+# remove everything we no longer need
+[:List, :Update, :Discover, :Unsource, :Sources, :Info].each{|c| Commands.send(:remove_const,c)}
+
 module Commands
   # overwrite list to show installed repositories
   class List
