@@ -68,11 +68,11 @@ module Commands
     def parse!(args)
       cd base_dir
       Dir["*"].select{|p| File.directory?(p)}.each do |name|
-        puts info_for_plugin(name)
+        puts one_line_summary(name)
       end
     end
 
-    def info_for_plugin(name)
+    def one_line_summary(name)
       if info = ::Plugin.info_for_plugin(base_dir, name)
         "#{name} #{info[:uri]} #{info[:revision]} #{info[:installed_at].to_s(:db)}"
       else
@@ -113,6 +113,36 @@ module Commands
           end
         else
           puts "No meta info found: #{name}"
+        end
+      end
+    end
+
+    def base_dir
+      "#{@base_command.environment.root}/vendor/plugins"
+    end
+  end
+
+  # overwrite info to give some helpful info
+  class Info
+    def initialize(base_command)
+      @base_command = base_command
+    end
+
+    def options
+      OptionParser.new do |o|
+        o.set_summary_indent('  ')
+        o.banner =    "Usage: #{@base_command.script_name} info name [name]..."
+        o.define_head "Shows plugin info."
+      end
+    end
+
+    def parse!(args)
+      options.parse!(args)
+      args.each do |name|
+        if info = ::Plugin.info_for_plugin(base_dir, name)
+          puts info.map{|k,v| "#{k}: #{v}"}.sort * "\n"
+        else
+          puts name
         end
       end
     end

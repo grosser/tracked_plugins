@@ -26,6 +26,12 @@ Do we need a update?
     From git://github.com/grosser/parallel_specs
      * branch            HEAD       -> FETCH_HEAD
 
+###Info
+    script/plugin info parallel_specs
+    installed_at: Sun Jan 10 15:59:27 +0100 2010
+    revision: b195927a98aa351fcefef20730a2fdad7ff3efd5
+    uri: git://github.com/grosser/parallel_specs.git
+
 
 # TODO
  - `script/plugin diff` that shows what changed in the remote <-> review before updating

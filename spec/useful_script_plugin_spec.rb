@@ -13,6 +13,9 @@ copy = "#{TEST_RAILS}/vendor/plugins/#{File.basename(current)}"
 `ln -s #{current} #{copy}`
 `cd #{TEST_RAILS} && ruby -e 'load "#{copy}/install.rb"'` # simulate install hook
 
+GIT_PLUGIN = "git://github.com/grosser/xhr_redirect.git"
+SVN_PLUGIN = "http://small-plugins.googlecode.com/svn/trunk/will_paginate_acts_as_searchable"
+
 def install_plugin(uri)
   `cd #{TEST_RAILS} && script/plugin install #{uri}`
   name = uri.match(%r{/([^/]+?)(\.git)?$})[1]
@@ -22,7 +25,7 @@ end
 
 describe "installing from git" do
   before :all do
-    @uri = "git://github.com/grosser/xhr_redirect.git"
+    @uri = GIT_PLUGIN
     @name, @plugin_folder = install_plugin(@uri)
   end
 
@@ -57,7 +60,7 @@ end
 
 describe "installing from svn" do
   before :all do
-    @uri = "http://small-plugins.googlecode.com/svn/trunk/will_paginate_acts_as_searchable"
+    @uri = SVN_PLUGIN
     @name, @plugin_folder = install_plugin(@uri)
   end
 
@@ -92,7 +95,7 @@ end
 
 describe 'list' do
   before :all do
-    @uri = "git://github.com/grosser/xhr_redirect.git"
+    @uri = GIT_PLUGIN
     @name, @plugin_folder = install_plugin(@uri)
   end
 
@@ -116,7 +119,7 @@ end
 
 describe 'update' do
   before :all do
-    @uri = "git://github.com/grosser/xhr_redirect.git"
+    @uri = GIT_PLUGIN
     @name, @plugin_folder = install_plugin(@uri)
   end
 
@@ -154,6 +157,26 @@ describe 'update' do
   it "show 'no meta info' for plugins without info" do
     `rm #{info_file}`
     `cd #{TEST_RAILS} && script/plugin update #{@name}`.strip.should == "No meta info found: #{@name}"
+  end
+end
+
+describe 'info' do
+  before :all do
+    @uri = GIT_PLUGIN
+    @name, @plugin_folder = install_plugin(@uri)
+  end
+
+  after :all do
+    `rm -rf #{@plugin_folder}`
+  end
+
+  it "shows basic info" do
+    `cd #{TEST_RAILS} && script/plugin info #{@name}`.strip.should =~ /^installed_at: [^\n]+\nrevision: [\da-f]+\nuri: #{@uri}$/m
+  end
+
+  it "only shows name when no info is available" do
+    `rm #{TEST_RAILS}/vendor/plugins/#{@name}/PLUGIN_INFO.yml`
+    `cd #{TEST_RAILS} && script/plugin info #{@name}`.strip.should == @name
   end
 end
 
