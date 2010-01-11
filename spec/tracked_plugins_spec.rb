@@ -175,7 +175,12 @@ describe 'info' do
   end
 
   it "shows basic info" do
-    `cd #{TEST_RAILS} && script/plugin info #{@name}`.strip.should =~ /^checksum: [\da-f]+\ninstalled_at: [^\n]+\nrevision: [\da-f]+\nuri: #{@uri}$/m
+    `cd #{TEST_RAILS} && script/plugin info #{@name}`.strip.should =~ /^checksum: [\da-f]+\ninstalled_at: [^\n]+\nlocally_modified: No\nrevision: [\da-f]+\nuri: #{@uri}$/m
+  end
+
+  it "shows modified if it was modified" do
+    `echo 111 >> #{TEST_RAILS}/vendor/plugins/#{@name}/README.markdown`
+    `cd #{TEST_RAILS} && script/plugin info #{@name}`.strip.should include('locally_modified: Yes')
   end
 
   it "only shows name when no info is available" do

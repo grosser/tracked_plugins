@@ -34,11 +34,19 @@ class Plugin
   end
 
   def self.checksum(dir)
-    %w[md5sum md5].each do |cmd|
-      # make checksum of content, surpress errors
-      return `tar cf - #{dir} 2>/dev/null | #{cmd}`.match(/[\da-f]{32}/)[0] rescue nil
+    files = (Dir["#{dir}/**/*"]-["#{dir}/#{INFO_STORAGE}"]).reject{|f| File.directory?(f)}
+    content = files.map{|f| File.read(f)}.join
+    require 'md5'
+    MD5.md5(content).to_s
+  end
+
+  def self.locally_modified(dir)
+    info = info_for_plugin(dir) || {}
+    if info[:checksum]
+      (info[:checksum] == checksum(dir)) ? 'No' : 'Yes'
+    else
+      'Unknown'
     end
-    nil
   end
 
   def self.repository_revision(uri)
@@ -54,8 +62,8 @@ class Plugin
     end
   end
 
-  def self.info_for_plugin(base, name)
-    file = File.join(base, name, ::Plugin::INFO_STORAGE)
+  def self.info_for_plugin(dir)
+    file = "#{dir}/#{::Plugin::INFO_STORAGE}"
     if File.exist?(file)
       YAML.load(File.read(file))
     else
@@ -85,7 +93,7 @@ module Commands
     end
 
     def one_line_summary(name)
-      if info = ::Plugin.info_for_plugin(base_dir, name)
+      if info = ::Plugin.info_for_plugin("#{base_dir}/#{name}")
         "#{name} #{info[:uri]} #{info[:revision]} #{info[:installed_at].to_s(:db)}"
       else
         name
@@ -115,7 +123,7 @@ module Commands
     def parse!(args)
       options.parse!(args)
       args.each do |name|
-        info = ::Plugin.info_for_plugin(base_dir, name)
+        info = ::Plugin.info_for_plugin("#{base_dir}/#{name}")
         if info and info[:uri]
           if info[:revision] == ::Plugin.repository_revision(info[:uri])
             puts "Plugin is up to date: #{name} (#{info[:revision]})"
@@ -151,7 +159,9 @@ module Commands
     def parse!(args)
       options.parse!(args)
       args.each do |name|
-        if info = ::Plugin.info_for_plugin(base_dir, name)
+        dir = "#{base_dir}/#{name}"
+        if info = ::Plugin.info_for_plugin(dir)
+          info[:locally_modified] = ::Plugin.locally_modified("#{base_dir}/#{name}")
           puts info.map{|k,v| "#{k}: #{v}"}.sort * "\n"
         else
           puts name

@@ -1,5 +1,5 @@
 With tracked_plugins installation stays the same and new meta information
-(url / installed_at / revision / ...) is stored <-> used to update/list plugins.
+(url / installed_at / revision / plugin-locally-hacked? /...) is stored <-> used to update/list plugins.
 
 # Install
     script/plugin install git://github.com/grosser/tracked_plugins.git
@@ -27,12 +27,16 @@ Do we need a update?
      * branch            HEAD       -> FETCH_HEAD
 
 ###Info
+ - Locally modified == you made some hacks!!
+ - checksum == md5 checksum of this plugins folder
+
+:
     script/plugin info parallel_specs
     checksum: 8a6d69d6c7fb0928ccae8b451a2914eb
+    locally_modified: No
     installed_at: Sun Jan 10 15:59:27 +0100 2010
     revision: b195927a98aa351fcefef20730a2fdad7ff3efd5
     uri: git://github.com/grosser/parallel_specs.git
-
 
 # TODO
  - `script/plugin diff` that shows what changed in the remote <-> review before updating
