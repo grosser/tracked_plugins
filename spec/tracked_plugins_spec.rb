@@ -178,9 +178,16 @@ describe 'tracked_plugins' do
     end
 
     describe '--diff' do
-      it "does not show diff without it" do
+      before do
         change_info(:revision => OLD_GIT_PLUGIN_COMMITS[0])
+      end
+
+      it "does not show diff without it" do
         script_plugin(:info, @name).should_not include(OLD_GIT_PLUGIN_COMMITS[1])
+      end
+
+      it "shows diff" do
+        script_plugin(:info, "#{@name} --diff").should include(OLD_GIT_PLUGIN_COMMITS[1])
       end
     end
 
