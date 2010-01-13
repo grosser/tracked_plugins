@@ -68,7 +68,7 @@ class Plugin
 
   def self.plugin_revision_log(uri, options={})
     if self.new(uri).git_url?
-      git_checkout_and_do(uri, '--no-checkout', 'git log --pretty=format:"%H %cr %s"')
+      git_checkout_and_do(uri, '--no-checkout', "git log --pretty=format:'%H %cr %s' #{options[:starting_at ]}..HEAD")
     else # svn:// or http://
       `svn info #{uri}`.match(/Revision: (\d+)/)[1]
     end
@@ -167,7 +167,7 @@ module Commands
         o.define_head "Shows plugin info."
         o.separator   ""
         o.separator   "Options:"
-        o.on(         "-d", "--diff", "Show diffs whe updateable.") {|show_diff|  @show_diffs = show_diff}
+        o.on(         "-l", "--log", "Show log of available updates.") {|show_log|  @show_log = show_log}
       end
     end
 
@@ -179,7 +179,11 @@ module Commands
           info[:locally_modified] = ::Plugin.locally_modified("#{base_dir}/#{name}")
           info[:updateable] = updateable_info(name, info)
           puts info.map{|k,v| "#{k}: #{v}"}.sort * "\n"
-          puts ::Plugin.plugin_revision_log(info[:uri] ,:starting_at => info[:revision]) if @show_diffs
+          if @show_log
+            puts ''
+            puts "available updates:"
+            puts ::Plugin.plugin_revision_log(info[:uri], :starting_at => info[:revision])
+          end
         else
           puts name
         end
@@ -192,7 +196,7 @@ module Commands
       elsif ::Plugin.repository_revision(info[:uri]) == info[:revision]
         'No'
       else
-        @show_diffs ? 'Yes' : "Yes -> #{@base_command.script_name} info #{@name} --diff"
+        @show_log ? 'Yes' : "Yes -> #{@base_command.script_name} info #{@name} --log"
       end
     end
 

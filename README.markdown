@@ -1,5 +1,12 @@
-With tracked_plugins installation stays the same and new meta information
-(url / installed_at / revision / plugin-locally-hacked? /...) is stored <-> used to update/list plugins.
+With tracked_plugins installation stays the same and new meta information  
+(url / installed_at / revision / plugin-locally-hacked? / ...) is stored <-> used to update/list plugins.
+
+ - simple updating
+ - where did the plugin come from ?
+ - when was it installed ?
+ - what updates are waiting ?
+ - did we hack it ?
+ - ...
 
 # Install
     script/plugin install git://github.com/grosser/tracked_plugins.git
@@ -29,17 +36,35 @@ Do we need a update?
 ###Info
  - Locally modified == you made some hacks!!
  - checksum == md5 checksum of this plugins folder
+ - updateable ?
+ - `--log` == show available updates
 
-:
+Already up to date and unmodified
     script/plugin info parallel_specs
     checksum: 8a6d69d6c7fb0928ccae8b451a2914eb
     locally_modified: No
     installed_at: Sun Jan 10 15:59:27 +0100 2010
     revision: b195927a98aa351fcefef20730a2fdad7ff3efd5
+    updateable: No
     uri: git://github.com/grosser/parallel_specs.git
 
+With available updates and `--log`
+    ./script/plugin info --log parallel_specs
+    checksum: 3b243eaad567166d1538a5ffad31fec8
+    installed_at: Wed Jan 13 21:10:04 +0100 2010
+    locally_modified: No
+    revision: a0741c68326d42b726a2ec3c3780d8559fa8404b
+    updateable: Yes
+    uri: git://github.com/grosser/parallel_specs.git
+
+    available updates:
+    b195927a98aa351fcefef20730a2fdad7ff3efd5 4 weeks ago improve docs
+    ea7eab3544c641dc6a965a1af45d36cdce3f0bd5 4 weeks ago Add support for parallel_spec.opts
+    115e7a802905c06058444764b059763edc06d277 3 months ago micro doc change
+
+
+
 # TODO
- - `script/plugin diff` that shows what changed in the remote <-> review before updating
  - do a real update: checkout, copy .git over, rebase/stash <-> keep modifications
  - add `script/plugin reinstall`
  - create PLUGIN_INFO.yml for tracked_plugins after installation (install.rb)

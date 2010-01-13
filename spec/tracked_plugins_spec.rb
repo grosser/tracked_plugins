@@ -177,17 +177,21 @@ describe 'tracked_plugins' do
       script_plugin(:info, @name).should include('updateable: Unknown')
     end
 
-    describe '--diff' do
+    describe '--log' do
       before do
         change_info(:revision => OLD_GIT_PLUGIN_COMMITS[0])
       end
 
-      it "does not show diff without it" do
+      it "does not show log without it" do
         script_plugin(:info, @name).should_not include(OLD_GIT_PLUGIN_COMMITS[1])
       end
 
-      it "shows diff" do
-        script_plugin(:info, "#{@name} --diff").should include(OLD_GIT_PLUGIN_COMMITS[1])
+      it "shows log" do
+        script_plugin(:info, "#{@name} --log").should include(OLD_GIT_PLUGIN_COMMITS[1])
+      end
+
+      it "does not show current in log" do
+        script_plugin(:info, "#{@name} --log").split(OLD_GIT_PLUGIN_COMMITS[1])[1].should_not include(OLD_GIT_PLUGIN_COMMITS[0])
       end
     end
 
