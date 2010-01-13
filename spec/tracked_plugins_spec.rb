@@ -175,7 +175,7 @@ describe 'info' do
   end
 
   it "shows basic info" do
-    `cd #{TEST_RAILS} && script/plugin info #{@name}`.strip.should =~ /^checksum: [\da-f]+\ninstalled_at: [^\n]+\nlocally_modified: No\nrevision: [\da-f]+\nuri: #{@uri}$/m
+    `cd #{TEST_RAILS} && script/plugin info #{@name}`.strip.should =~ /^checksum: [\da-f]+\ninstalled_at: [^\n]+\nlocally_modified: No\nrevision: [\da-f]+\nupdateable: No\nuri: #{@uri}$/m
   end
 
   it "does not show modified if it was only touched" do
@@ -191,6 +191,10 @@ describe 'info' do
   it "only shows name when no info is available" do
     `rm #{TEST_RAILS}/vendor/plugins/#{@name}/PLUGIN_INFO.yml`
     `cd #{TEST_RAILS} && script/plugin info #{@name}`.strip.should == @name
+  end
+
+  it "shows updateable" do
+
   end
 end
 

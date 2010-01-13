@@ -153,6 +153,9 @@ module Commands
         o.set_summary_indent('  ')
         o.banner =    "Usage: #{@base_command.script_name} info name [name]..."
         o.define_head "Shows plugin info."
+        o.separator   ""
+        o.separator   "Options:"
+        o.on(         "-d", "--diff", "Show diffs whe updateable.") {|show_diff|  @show_diffs = show_diff}
       end
     end
 
@@ -162,10 +165,21 @@ module Commands
         dir = "#{base_dir}/#{name}"
         if info = ::Plugin.info_for_plugin(dir)
           info[:locally_modified] = ::Plugin.locally_modified("#{base_dir}/#{name}")
+          info[:updateable] = updateable_info(name, info)
           puts info.map{|k,v| "#{k}: #{v}"}.sort * "\n"
         else
           puts name
         end
+      end
+    end
+
+    def updateable_info(name, info)
+      if info[:revision].to_s.empty?
+        'Unknown'
+      elsif ::Plugin.repository_revision(info[:uri]) == info[:revision]
+        'No'
+      else
+        "Yes -> #{@base_command.script_name} info #{@name} --diff"
       end
     end
 
