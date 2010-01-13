@@ -24,18 +24,27 @@ def install_plugin(uri)
 end
 
 describe 'tracked_plugins' do
+  def info_file
+    "#{@plugin_folder}/PLUGIN_INFO.yml"
+  end
+
+  def plugin_info
+    YAML.load(File.read(info_file))
+  end
+
+  def change_info(to)
+    info = plugin_info
+    File.open(info_file,'w'){|f| f.write info.merge(to).to_yaml }
+  end
+
+  after :all do
+    `rm -rf #{@plugin_folder}` if @plugin_folder
+  end
+
   describe "installing from git" do
     before :all do
       @uri = GIT_PLUGIN
       @name, @plugin_folder = install_plugin(@uri)
-    end
-
-    after :all do
-      `rm -rf #{@plugin_folder}`
-    end
-
-    def plugin_info
-      YAML.load(File.read("#{@plugin_folder}/PLUGIN_INFO.yml"))
     end
 
     it "checks out the plugin" do
@@ -69,14 +78,6 @@ describe 'tracked_plugins' do
       @name, @plugin_folder = install_plugin(@uri)
     end
 
-    after :all do
-      `rm -rf #{@plugin_folder}`
-    end
-
-    def plugin_info
-      YAML.load(File.read("#{@plugin_folder}/PLUGIN_INFO.yml"))
-    end
-
     it "checks out the plugin" do
       File.exist?(@plugin_folder).should == true
     end
@@ -104,10 +105,6 @@ describe 'tracked_plugins' do
       @name, @plugin_folder = install_plugin(@uri)
     end
 
-    after :all do
-      `rm -rf #{@plugin_folder}`
-    end
-
     def list_info
       `cd #{TEST_RAILS} && script/plugin list`.split("\n")[1]
     end
@@ -117,7 +114,7 @@ describe 'tracked_plugins' do
     end
 
     it "displays normal information when meta info is missing" do
-      `rm #{@plugin_folder}/PLUGIN_INFO.yml`
+      `rm #{info_file}`
       list_info.should =~ %r{^#{@name}$}
     end
   end
@@ -128,34 +125,14 @@ describe 'tracked_plugins' do
       @name, @plugin_folder = install_plugin(@uri)
     end
 
-    after :all do
-      `rm -rf #{@plugin_folder}`
-    end
-
-    def info_file
-      "#{@plugin_folder}/PLUGIN_INFO.yml"
-    end
-
-    def plugin_info
-      YAML.load(File.read(info_file))
-    end
-
-    def change_revision(to)
-      info = plugin_info
-      File.open(info_file,'w'){|f| f.write info.merge(:revision => to).to_yaml }
-    end
-
     it "does not update plugins that do not need update" do
       `cd #{TEST_RAILS} && script/plugin update #{@name}`.strip.should == "Plugin is up to date: #{@name} (#{plugin_info[:revision]})"
     end
 
     it "updates plugins that need update" do
       old_revision = plugin_info[:revision]
-      change_revision('xxxx')
-      plugin_info[:revision].should_not == old_revision
-
+      change_info(:revision => 'xxxx')
       `cd #{TEST_RAILS} && script/plugin update #{@name}`.strip.should == "Reinstalling plugin: #{@name} (xxxx)"
-
       plugin_info[:revision].should == old_revision
     end
 
@@ -171,26 +148,22 @@ describe 'tracked_plugins' do
       @name, @plugin_folder = install_plugin(@uri)
     end
 
-    after :all do
-      `rm -rf #{@plugin_folder}`
-    end
-
     it "shows basic info" do
       `cd #{TEST_RAILS} && script/plugin info #{@name}`.strip.should =~ /^checksum: [\da-f]+\ninstalled_at: [^\n]+\nlocally_modified: No\nrevision: [\da-f]+\nupdateable: No\nuri: #{@uri}$/m
     end
 
     it "does not show modified if it was only touched" do
-      `touch #{TEST_RAILS}/vendor/plugins/#{@name}/README.markdown`
+      `touch #{@plugin_folder}/README.markdown`
       `cd #{TEST_RAILS} && script/plugin info #{@name}`.strip.should include('locally_modified: No')
     end
 
     it "shows modified if it was modified" do
-      `echo 111 >> #{TEST_RAILS}/vendor/plugins/#{@name}/README.markdown`
+      `echo 111 >> #{@plugin_folder}/README.markdown`
       `cd #{TEST_RAILS} && script/plugin info #{@name}`.strip.should include('locally_modified: Yes')
     end
 
     it "only shows name when no info is available" do
-      `rm #{TEST_RAILS}/vendor/plugins/#{@name}/PLUGIN_INFO.yml`
+      `rm #{info_file}`
       `cd #{TEST_RAILS} && script/plugin info #{@name}`.strip.should == @name
     end
 
