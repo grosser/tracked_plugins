@@ -37,7 +37,7 @@ describe 'tracked_plugins' do
     File.open(info_file,'w'){|f| f.write info.merge(to).to_yaml }
   end
 
-  def execute(cmd, args)
+  def script_plugin(cmd, args)
     `cd #{TEST_RAILS} && script/plugin #{cmd} #{args}`
   end
 
@@ -130,19 +130,19 @@ describe 'tracked_plugins' do
     end
 
     it "does not update plugins that do not need update" do
-      execute(:update, @name).strip.should == "Plugin is up to date: #{@name} (#{plugin_info[:revision]})"
+      script_plugin(:update, @name).strip.should == "Plugin is up to date: #{@name} (#{plugin_info[:revision]})"
     end
 
     it "updates plugins that need update" do
       old_revision = plugin_info[:revision]
       change_info(:revision => 'xxxx')
-      execute(:update, @name).strip.should == "Reinstalling plugin: #{@name} (xxxx)"
+      script_plugin(:update, @name).strip.should == "Reinstalling plugin: #{@name} (xxxx)"
       plugin_info[:revision].should == old_revision
     end
 
     it "show 'no meta info' for plugins without info" do
       `rm #{info_file}`
-      execute(:update, @name).strip.should == "No meta info found: #{@name}"
+      script_plugin(:update, @name).strip.should == "No meta info found: #{@name}"
     end
   end
 
@@ -153,32 +153,38 @@ describe 'tracked_plugins' do
     end
 
     it "shows basic info" do
-      execute(:info, @name).strip.should =~ /^checksum: [\da-f]+\ninstalled_at: [^\n]+\nlocally_modified: No\nrevision: [\da-f]+\nupdateable: No\nuri: #{@uri}$/m
+      script_plugin(:info, @name).strip.should =~ /^checksum: [\da-f]+\ninstalled_at: [^\n]+\nlocally_modified: No\nrevision: [\da-f]+\nupdateable: No\nuri: #{@uri}$/m
     end
 
     it "does not show modified if it was only touched" do
       `touch #{@plugin_folder}/README.markdown`
-      execute(:info, @name).strip.should include('locally_modified: No')
+      script_plugin(:info, @name).strip.should include('locally_modified: No')
     end
 
     it "shows modified if it was modified" do
       `echo 111 >> #{@plugin_folder}/README.markdown`
-      execute(:info, @name).strip.should include('locally_modified: Yes')
-    end
-
-    it "only shows name when no info is available" do
-      `rm #{info_file}`
-      execute(:info, @name).strip.should == @name
+      script_plugin(:info, @name).strip.should include('locally_modified: Yes')
     end
 
     it "is updateble when current revision is changed" do
       change_info(:revision => 'xxxx')
-      execute(:info, @name).should include('updateble: Yes')
+      script_plugin(:info, @name).should include('updateable: Yes')
     end
 
     it "is not updateble when current revision is missing" do
       change_info(:revision => '')
-      execute(:info, @name).should include('updateble: Unknown')
+      script_plugin(:info, @name).should include('updateable: Unknown')
+    end
+
+    describe '--diff' do
+      it "does not show diff without it" do
+        
+      end
+    end
+
+    it "only shows name when no info is available" do
+      `rm #{info_file}`
+      script_plugin(:info, @name).strip.should == @name
     end
   end
 
