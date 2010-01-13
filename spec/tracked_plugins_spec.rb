@@ -178,6 +178,11 @@ describe 'info' do
     `cd #{TEST_RAILS} && script/plugin info #{@name}`.strip.should =~ /^checksum: [\da-f]+\ninstalled_at: [^\n]+\nlocally_modified: No\nrevision: [\da-f]+\nuri: #{@uri}$/m
   end
 
+  it "does not show modified if it was only touched" do
+    `touch #{TEST_RAILS}/vendor/plugins/#{@name}/README.markdown`
+    `cd #{TEST_RAILS} && script/plugin info #{@name}`.strip.should include('locally_modified: No')
+  end
+
   it "shows modified if it was modified" do
     `echo 111 >> #{TEST_RAILS}/vendor/plugins/#{@name}/README.markdown`
     `cd #{TEST_RAILS} && script/plugin info #{@name}`.strip.should include('locally_modified: Yes')
