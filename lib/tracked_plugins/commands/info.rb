@@ -1,10 +1,6 @@
 module Commands
   # overwrite info to give some helpful info
-  class Info
-    def initialize(base_command)
-      @base_command = base_command
-    end
-
+  class Info < Commands::Base
     def options
       OptionParser.new do |o|
         o.set_summary_indent('  ')
@@ -43,10 +39,6 @@ module Commands
       else
         @show_log ? 'Yes' : "Yes -> #{@base_command.script_name} info #{@name} --log"
       end
-    end
-
-    def base_dir
-      "#{@base_command.environment.root}/vendor/plugins"
     end
   end
 end

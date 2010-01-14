@@ -1,10 +1,6 @@
 # overwrite to do revision based updates
 module Commands
-  class Update
-    def initialize(base_command)
-      @base_command = base_command
-    end
-
+  class Update < Commands::Base
     def options
       OptionParser.new do |o|
         o.set_summary_indent('  ')
@@ -29,10 +25,6 @@ module Commands
           puts "No meta info found: #{name}"
         end
       end
-    end
-
-    def base_dir
-      "#{@base_command.environment.root}/vendor/plugins"
     end
   end
 end

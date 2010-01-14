@@ -11,8 +11,10 @@ require 'active_support/core_ext/time'
 [:List, :Update, :Discover, :Unsource, :Sources, :Info].each{|c| Commands.send(:remove_const,c)}
 
 require 'tracked_plugins/plugin'
+require 'tracked_plugins/commands/base'
 require 'tracked_plugins/commands/list'
 require 'tracked_plugins/commands/info'
 require 'tracked_plugins/commands/update'
+require 'tracked_plugins/rails_environment'
 
 Commands::Plugin.parse!
