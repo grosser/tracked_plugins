@@ -1,6 +1,7 @@
 code = <<-EOF
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../config/boot'
+$LOAD_PATH << 'vendor/plugins/tracked_plugins/lib'
 require 'vendor/plugins/tracked_plugins/lib/tracked_plugins'
 EOF
 
