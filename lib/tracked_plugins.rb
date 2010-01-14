@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), 'old_script_plugin')
+require 'old_script_plugin'
 
 # get alias_method_chain
 require 'active_support/core_ext/array'
