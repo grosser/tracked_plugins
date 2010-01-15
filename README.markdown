@@ -10,6 +10,8 @@ With tracked_plugins installation stays the same and new meta information
 
 # Install
     script/plugin install git://github.com/grosser/tracked_plugins.git
+Install again so that plugin meta data is available for tracked_plugins too.
+    script/plugin install --force git://github.com/grosser/tracked_plugins.git
 
 # Usage
 ###Install
@@ -66,8 +68,6 @@ With available updates and `--log`
 
 # TODO
  - do a real update: checkout, copy .git over, rebase/stash <-> keep modifications
- - add `script/plugin reinstall`
- - create PLUGIN_INFO.yml for tracked_plugins after installation (install.rb)
 
 Author
 ======

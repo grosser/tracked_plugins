@@ -1,3 +1,4 @@
+# install script/plugin hook
 code = <<-EOF
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../config/boot'

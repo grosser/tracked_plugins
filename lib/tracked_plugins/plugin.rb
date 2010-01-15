@@ -4,6 +4,11 @@ class Plugin
   # overwrite install to add version information
   def run_install_hook_with_add_info(*args)
     run_install_hook_without_add_info(*args)
+    store_info_to_yml
+  end
+  alias_method_chain :run_install_hook, :add_info
+
+  def store_info_to_yml
     File.open(info_yml, 'w') do |f|
       info =  {
         :uri => @uri,
@@ -14,7 +19,6 @@ class Plugin
       f.write info.to_yaml
     end
   end
-  alias_method_chain :run_install_hook, :add_info
 
   def install_dir
     "#{rails_env.root}/vendor/plugins/#{name}"
