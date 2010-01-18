@@ -3,7 +3,7 @@ module Commands
   class List < Commands::Base
     def parse!(args)
       cd base_dir
-      Dir["*"].select{|p| File.directory?(p)}.each do |name|
+      Dir["*"].select{|p| File.directory?(p)}.sort.each do |name|
         puts one_line_summary(name)
       end
     end
