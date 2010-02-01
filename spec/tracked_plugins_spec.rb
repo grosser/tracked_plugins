@@ -14,11 +14,11 @@ copy = "#{TEST_RAILS}/vendor/plugins/#{File.basename(current)}"
 `cd #{TEST_RAILS} && ruby -e 'load "#{copy}/install.rb"'` # simulate install hook
 
 GIT_PLUGIN = "git://github.com/grosser/xhr_redirect.git"
-OLD_GIT_PLUGIN_COMMITS = ['04f21e015f5419a2383fb430f2428081317ffd95', '1cd9a5bee5cea9b90719ef84dc75616ea2a0ba59']
+OLD_GIT_PLUGIN_COMMITS = ['04f21e015f5419a2383fb430f2428081317ffd95', '1cd9a5bee5cea9b90719ef84dc75616ea2a0ba59', '4a0c0fb267f6047d6f7799fa1d5311c80e887072']
 SVN_PLUGIN = "http://small-plugins.googlecode.com/svn/trunk/will_paginate_acts_as_searchable"
 
-def install_plugin(uri)
-  `cd #{TEST_RAILS} && script/plugin install #{uri}`
+def install_plugin(uri, options='')
+  `cd #{TEST_RAILS} && script/plugin install #{uri} #{options}`
   name = uri.match(%r{/([^/]+?)(\.git)?$})[1]
   plugin_folder = "#{TEST_RAILS}/vendor/plugins/#{name}"
   [name, plugin_folder]
@@ -104,10 +104,25 @@ describe 'tracked_plugins' do
     end
   end
 
+  describe 'with custom revision' do
+    it "writes correct revision for svn" do
+      @uri = SVN_PLUGIN
+      @name, @plugin_folder = install_plugin(@uri, "--revision 2")
+      plugin_info[:revision].should == '2'
+    end
+
+    it "writes correct revision for git" do
+      @uri = GIT_PLUGIN
+      @name, @plugin_folder = install_plugin(@uri, "--revision old_branch")
+      plugin_info[:revision].should == OLD_GIT_PLUGIN_COMMITS[2]
+    end
+  end
+
   describe 'list' do
     before :all do
       @uri = GIT_PLUGIN
       @name, @plugin_folder = install_plugin(@uri)
+      `rm -rf #{@plugin_folder}/../#{File.basename(SVN_PLUGIN)}`
     end
 
     def list_info
