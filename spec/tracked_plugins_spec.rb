@@ -105,16 +105,40 @@ describe 'tracked_plugins' do
   end
 
   describe 'with custom revision' do
-    it "writes correct revision for svn" do
-      @uri = SVN_PLUGIN
-      @name, @plugin_folder = install_plugin(@uri, "--revision 2")
-      plugin_info[:revision].should == '2'
+    describe 'svn' do
+      before do
+        @uri = SVN_PLUGIN
+        @name, @plugin_folder = install_plugin(@uri, "--revision 2")
+      end
+
+      it "writes correct revision for svn" do
+        plugin_info[:revision].should == '2'
+      end
+
+      it "does not write branch for svn" do
+        plugin_info[:branch].should == nil
+      end
     end
 
-    it "writes correct revision for git" do
-      @uri = GIT_PLUGIN
-      @name, @plugin_folder = install_plugin(@uri, "--revision old_branch")
-      plugin_info[:revision].should == OLD_GIT_PLUGIN_COMMITS[2]
+    describe 'git' do
+      before do
+        @uri = GIT_PLUGIN
+        @name, @plugin_folder = install_plugin(@uri, "--revision old_branch")
+      end
+
+      it "writes correct revision for git" do
+        plugin_info[:revision].should == OLD_GIT_PLUGIN_COMMITS[2]
+      end
+
+      it "writes branch info" do
+        plugin_info[:branch].should == 'old_branch'
+      end
+
+      it "can update from branch" do
+        change_info(:revision => OLD_GIT_PLUGIN_COMMITS[1])
+        script_plugin(:update, @name).strip.should == "Reinstalling plugin: #{@name} (#{OLD_GIT_PLUGIN_COMMITS[1]})"
+        plugin_info[:revision].should == OLD_GIT_PLUGIN_COMMITS[2]
+      end
     end
   end
 
