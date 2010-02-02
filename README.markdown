@@ -1,11 +1,9 @@
 With tracked_plugins installation stays the same and new meta information  
-(url / installed_at / revision / plugin-locally-hacked? / ...) is stored <-> used to update/list plugins.
+(url / branch / revision / installed_at / plugin-locally-hacked? / ...) is stored <-> used to update/list plugins.
 
- - simple updating
- - where did the plugin come from ?
- - when was it installed ?
- - what updates are waiting ?
- - did we hack it ?
+ - simple updating through know url/branch
+ - waiting updates with changelog
+ - locally modified aka hacked ?
  - ...
 
 # Install
@@ -64,10 +62,10 @@ With available updates and `--log`
     ea7eab3544c641dc6a965a1af45d36cdce3f0bd5 4 weeks ago Add support for parallel_spec.opts
     115e7a802905c06058444764b059763edc06d277 3 months ago micro doc change
 
-
-
-# TODO
- - do a real update: checkout, copy .git over, rebase/stash <-> keep modifications
+#TODO
+ - `script/plugin update all`
+ - `script/plugin info all`
+ - get rails core to swap old script/plugin with this
 
 Author
 ======
