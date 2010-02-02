@@ -123,7 +123,8 @@ describe 'tracked_plugins' do
     describe 'git' do
       before do
         @uri = GIT_PLUGIN
-        @name, @plugin_folder = install_plugin(@uri, "--revision old_branch")
+        @branch = 'old_branch'
+        @name, @plugin_folder = install_plugin(@uri, "--revision #{@branch}")
       end
 
       it "writes correct revision for git" do
@@ -131,13 +132,20 @@ describe 'tracked_plugins' do
       end
 
       it "writes branch info" do
-        plugin_info[:branch].should == 'old_branch'
+        plugin_info[:branch].should == @branch
       end
 
       it "can update from branch" do
-        change_info(:revision => OLD_GIT_PLUGIN_COMMITS[1])
-        script_plugin(:update, @name).strip.should == "Reinstalling plugin: #{@name} (#{OLD_GIT_PLUGIN_COMMITS[1]})"
+        change_info(:revision => OLD_GIT_PLUGIN_COMMITS[1]) # old commit of old_branch
+        script_plugin(:update, @name).strip.should == "Reinstalling plugin: #{@name} branch: #{@branch} (#{OLD_GIT_PLUGIN_COMMITS[1]})"
         plugin_info[:revision].should == OLD_GIT_PLUGIN_COMMITS[2]
+        plugin_info[:branch].should == 'old_branch'
+      end
+
+      it "does not update if branch is up-to-date" do
+        old_info = plugin_info
+        script_plugin(:update, @name).strip.should == "Plugin is up to date: #{@name} branch: #{@branch} (#{old_info[:revision]})"
+        plugin_info.should == old_info
       end
     end
   end

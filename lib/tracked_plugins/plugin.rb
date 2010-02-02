@@ -17,13 +17,15 @@ class Plugin
 
   def store_info_to_yml
     install_options = @temp_install_options || {}
+    branch = (git_url? ? install_options[:revision] : nil)
     File.open(info_yml, 'w') do |f|
       info =  {
         :uri => @uri,
         :installed_at => Time.now,
         :revision => self.class.repository_revision(@uri, install_options),
+        :branch => branch,
         :checksum => self.class.checksum(install_dir)
-      }
+      }.reject{|k,value| value.nil? }
       f.write info.to_yaml
     end
   end
@@ -52,12 +54,12 @@ class Plugin
     end
   end
 
-  def self.repository_revision(uri, options={})
-    if self.new(uri).git_url?
-      git_checkout_and_do(uri, 'git log --pretty=format:%H -1', :branch=>options[:revision])
+  def self.repository_revision(url, options={})
+    if git_url?(url)
+      git_checkout_and_do(url, 'git log --pretty=format:%H -1', :branch=>options[:revision])
     else # svn:// or http://
       return options[:revision] if options[:revision]
-      `svn info #{uri}`.match(/Revision: (\d+)/)[1]
+      `svn info #{url}`.match(/Revision: (\d+)/)[1]
     end
   end
 
@@ -71,7 +73,7 @@ class Plugin
   end
 
   def self.plugin_revision_log(uri, options={})
-    if self.new(uri).git_url?
+    if git_url?(uri)
       git_checkout_and_do(uri, "git log --pretty=format:'%H %cr %s' #{options[:starting_at ]}..HEAD", :branch=>options[:revision])
     else # svn:// or http://
       `svn info #{uri}`.match(/Revision: (\d+)/)[1]
@@ -90,5 +92,9 @@ class Plugin
     revision = `cd #{temp} && #{git_cmd}`.strip
     `rm -rf #{temp}`
     revision
+  end
+
+  def self.git_url?(url)
+    self.new(url).git_url?
   end
 end

@@ -15,11 +15,13 @@ module Commands
       args.each do |name|
         info = ::Plugin.info_for_plugin("#{base_dir}/#{name}")
         if info and info[:uri]
-          if info[:revision] == ::Plugin.repository_revision(info[:uri])
-            puts "Plugin is up to date: #{name} (#{info[:revision]})"
+          branch = (info[:branch] ? " branch: #{info[:branch]}" : '')
+          if info[:revision] == ::Plugin.repository_revision(info[:uri], :revision => info[:branch])
+            puts "Plugin is up to date: #{name}#{branch} (#{info[:revision]})"
           else
-            puts "Reinstalling plugin: #{name} (#{info[:revision]})"
-            `script/plugin install --force #{info[:uri]}`
+            puts "Reinstalling plugin: #{name}#{branch} (#{info[:revision]})"
+            revision_arg = (info[:branch] ? " --revision #{info[:branch]}" : '')
+            `script/plugin install --force #{info[:uri]}#{revision_arg}`
           end
         else
           puts "No meta info found: #{name}"
