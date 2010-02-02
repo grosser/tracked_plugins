@@ -74,7 +74,7 @@ class Plugin
 
   def self.plugin_revision_log(uri, options={})
     if git_url?(uri)
-      git_checkout_and_do(uri, "git log --pretty=format:'%H %cr %s' #{options[:starting_at ]}..HEAD", :branch=>options[:revision])
+      git_checkout_and_do(uri, "git log --pretty=format:'%H %cr %s' #{options[:starting_at]}..HEAD", :branch => options[:branch])
     else # svn:// or http://
       `svn info #{uri}`.match(/Revision: (\d+)/)[1]
     end

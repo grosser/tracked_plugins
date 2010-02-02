@@ -14,7 +14,7 @@ copy = "#{TEST_RAILS}/vendor/plugins/#{File.basename(current)}"
 `cd #{TEST_RAILS} && ruby -e 'load "#{copy}/install.rb"'` # simulate install hook
 
 GIT_PLUGIN = "git://github.com/grosser/xhr_redirect.git"
-OLD_GIT_PLUGIN_COMMITS = ['04f21e015f5419a2383fb430f2428081317ffd95', '1cd9a5bee5cea9b90719ef84dc75616ea2a0ba59', '4a0c0fb267f6047d6f7799fa1d5311c80e887072']
+OLD_GIT_PLUGIN_COMMITS = ['04f21e015f5419a2383fb430f2428081317ffd95', '1cd9a5bee5cea9b90719ef84dc75616ea2a0ba59', '4a0c0fb267f6047d6f7799fa1d5311c80e887072', '581f516c4667cd0d95ee3ceb8de46770e3454b56']
 SVN_PLUGIN = "http://small-plugins.googlecode.com/svn/trunk/will_paginate_acts_as_searchable"
 
 def install_plugin(uri, options='')
@@ -146,6 +146,13 @@ describe 'tracked_plugins' do
         old_info = plugin_info
         script_plugin(:update, @name).strip.should == "Plugin is up to date: #{@name} branch: #{@branch} (#{old_info[:revision]})"
         plugin_info.should == old_info
+      end
+
+      it "shows only updates from branch in info --log" do
+        change_info(:revision => OLD_GIT_PLUGIN_COMMITS[1]) # old commit of old_branch
+        puts info = script_plugin(:info, "#{@name} --log")
+        info.should include(OLD_GIT_PLUGIN_COMMITS[2])
+        info.should_not include(OLD_GIT_PLUGIN_COMMITS[3])
       end
     end
   end

@@ -23,7 +23,7 @@ module Commands
           if @show_log
             puts ''
             puts "available updates:"
-            puts ::Plugin.plugin_revision_log(info[:uri], :starting_at => info[:revision])
+            puts ::Plugin.plugin_revision_log(info[:uri], :starting_at => info[:revision], :branch=>info[:branch])
           end
         else
           puts name
