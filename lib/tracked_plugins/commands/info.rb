@@ -17,18 +17,23 @@ module Commands
       args.each do |name|
         dir = "#{base_dir}/#{name}"
         if info = ::Plugin.info_for_plugin(dir)
-          info[:locally_modified] = ::Plugin.locally_modified_info("#{base_dir}/#{name}")
-          info[:updateable] = updateable_info(name, info)
-          puts info.map{|k,v| "#{k}: #{v}"}.sort * "\n"
-          if @show_log
-            puts ''
-            puts "available updates:"
-            puts ::Plugin.plugin_revision_log(info[:uri], :starting_at => info[:revision], :branch=>info[:branch])
-          end
+          puts full_info(name, info)
         else
           puts name
         end
       end
+    end
+
+    def full_info(name, info)
+      info[:locally_modified] = ::Plugin.locally_modified_info("#{base_dir}/#{name}")
+      info[:updateable] = updateable_info(name, info)
+      out = info.map{|k,v| "#{k}: #{v}"}.sort * "\n"
+      if @show_log
+        out += "\n"
+        out += "available updates:\n"
+        out += ::Plugin.plugin_revision_log(info[:uri], :starting_at => info[:revision], :branch=>info[:branch])
+      end
+      out
     end
 
     def updateable_info(name, info)
