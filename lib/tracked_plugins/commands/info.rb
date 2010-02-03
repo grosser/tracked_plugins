@@ -17,7 +17,7 @@ module Commands
       args.each do |name|
         dir = "#{base_dir}/#{name}"
         if info = ::Plugin.info_for_plugin(dir)
-          info[:locally_modified] = ::Plugin.locally_modified("#{base_dir}/#{name}")
+          info[:locally_modified] = ::Plugin.locally_modified_info("#{base_dir}/#{name}")
           info[:updateable] = updateable_info(name, info)
           puts info.map{|k,v| "#{k}: #{v}"}.sort * "\n"
           if @show_log

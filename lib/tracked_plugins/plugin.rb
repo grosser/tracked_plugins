@@ -1,14 +1,14 @@
 class Plugin
   INFO_STORAGE = 'PLUGIN_INFO.yml'
 
-  # overwrite install hook to add version information
+  # overwrite after install hook to write installation information
   def run_install_hook_with_store_info(*args)
     run_install_hook_without_store_info(*args)
     store_info_to_yml
   end
   alias_method_chain :run_install_hook, :store_info
 
-  # overwrite install to store options for later use (very hacky...)
+  # overwrite install to store options for later use (hacky...)
   def install_with_options_store(*args)
     @temp_install_options = args.reverse.detect{|a| a.is_a?(Hash) }
     install_without_options_store(*args)
@@ -45,7 +45,7 @@ class Plugin
     MD5.md5(content).to_s
   end
 
-  def self.locally_modified(dir)
+  def self.locally_modified_info(dir)
     info = info_for_plugin(dir) || {}
     if info[:checksum]
       (info[:checksum] == checksum(dir)) ? 'No' : 'Yes'
@@ -56,7 +56,8 @@ class Plugin
 
   def self.repository_revision(url, options={})
     if git_url?(url)
-      git_checkout_and_do(url, 'git log --pretty=format:%H -1', :branch=>options[:revision]||options[:branch])
+      branch = options[:revision] || options[:branch]
+      git_checkout_and_do(url, 'git log --pretty=format:%H -1', :branch => branch)
     else # svn:// or http://
       return options[:revision] if options[:revision]
       `svn info #{url}`.match(/Revision: (\d+)/)[1]
