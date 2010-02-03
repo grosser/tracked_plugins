@@ -18,9 +18,10 @@ OLD_GIT_PLUGIN_COMMITS = ['04f21e015f5419a2383fb430f2428081317ffd95', '1cd9a5bee
 SVN_PLUGIN = "http://small-plugins.googlecode.com/svn/trunk/will_paginate_acts_as_searchable"
 
 def install_plugin(uri, options='')
-  `cd #{TEST_RAILS} && script/plugin install #{uri} #{options}`
   name = uri.match(%r{/([^/]+?)(\.git)?$})[1]
   plugin_folder = "#{TEST_RAILS}/vendor/plugins/#{name}"
+  `rm -rf #{plugin_folder}`
+  `cd #{TEST_RAILS} && script/plugin install #{uri} #{options}`
   [name, plugin_folder]
 end
 
@@ -106,7 +107,7 @@ describe 'tracked_plugins' do
 
   describe 'with custom revision' do
     describe 'svn' do
-      before do
+      before :all do
         @uri = SVN_PLUGIN
         @name, @plugin_folder = install_plugin(@uri, "--revision 2")
       end
@@ -136,7 +137,7 @@ describe 'tracked_plugins' do
       end
 
       it "can update from branch" do
-        change_info(:revision => OLD_GIT_PLUGIN_COMMITS[1]) # old commit of old_branch
+        change_info(:revision => OLD_GIT_PLUGIN_COMMITS[1])
         script_plugin(:update, @name).strip.should == "Reinstalling plugin: #{@name} branch: #{@branch} (#{OLD_GIT_PLUGIN_COMMITS[1]})"
         plugin_info[:revision].should == OLD_GIT_PLUGIN_COMMITS[2]
         plugin_info[:branch].should == 'old_branch'
@@ -148,9 +149,18 @@ describe 'tracked_plugins' do
         plugin_info.should == old_info
       end
 
+      it "is updateable when not on most recent branch revision" do
+        change_info(:revision => OLD_GIT_PLUGIN_COMMITS[1])
+        script_plugin(:info, @name).should include('updateable: Yes')
+      end
+
+      it "is not updateable when on most recent branch revision" do
+        script_plugin(:info, @name).should include('updateable: No')
+      end
+
       it "shows only updates from branch in info --log" do
-        change_info(:revision => OLD_GIT_PLUGIN_COMMITS[1]) # old commit of old_branch
-        puts info = script_plugin(:info, "#{@name} --log")
+        change_info(:revision => OLD_GIT_PLUGIN_COMMITS[1])
+        info = script_plugin(:info, "#{@name} --log")
         info.should include(OLD_GIT_PLUGIN_COMMITS[2])
         info.should_not include(OLD_GIT_PLUGIN_COMMITS[3])
       end
@@ -161,11 +171,11 @@ describe 'tracked_plugins' do
     before :all do
       @uri = GIT_PLUGIN
       @name, @plugin_folder = install_plugin(@uri)
-      `rm -rf #{@plugin_folder}/../#{File.basename(SVN_PLUGIN)}`
+      #`rm -rf #{@plugin_folder}/../#{File.basename(SVN_PLUGIN)}`
     end
 
     def list_info
-      `cd #{TEST_RAILS} && script/plugin list`.split("\n")[1]
+      script_plugin(:list, @name).split("\n")[1]
     end
 
     it "displays meta information" do

@@ -34,7 +34,7 @@ module Commands
     def updateable_info(name, info)
       if info[:revision].to_s.empty?
         'Unknown'
-      elsif ::Plugin.repository_revision(info[:uri]) == info[:revision]
+      elsif ::Plugin.repository_revision(info[:uri], :branch => info[:branch]) == info[:revision]
         'No'
       else
         @show_log ? 'Yes' : "Yes -> #{@base_command.script_name} info #{@name} --log"

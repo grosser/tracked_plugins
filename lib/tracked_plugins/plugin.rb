@@ -56,7 +56,7 @@ class Plugin
 
   def self.repository_revision(url, options={})
     if git_url?(url)
-      git_checkout_and_do(url, 'git log --pretty=format:%H -1', :branch=>options[:revision])
+      git_checkout_and_do(url, 'git log --pretty=format:%H -1', :branch=>options[:revision]||options[:branch])
     else # svn:// or http://
       return options[:revision] if options[:revision]
       `svn info #{url}`.match(/Revision: (\d+)/)[1]
