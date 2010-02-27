@@ -2,13 +2,13 @@ require 'rubygems'
 require 'yaml'
 
 current = File.expand_path(File.dirname(File.dirname(__FILE__)))
-TEST_RAILS = File.join(current, 'spec', 'rails')
+TEST_RAILS = File.join(current, 'spec', 'testing_rails')
 
 # cleanup old test rails project
 `rm -rf #{TEST_RAILS}`
 
 # create a new test rails project that has this plugin installed
-`cd #{current}/spec && rails rails`
+`cd #{current}/spec && rails testing_rails`
 copy = "#{TEST_RAILS}/vendor/plugins/#{File.basename(current)}"
 `ln -s #{current} #{copy}`
 `cd #{TEST_RAILS} && ruby -e 'load "#{copy}/install.rb"'` # simulate install hook
@@ -17,11 +17,15 @@ GIT_PLUGIN = "git://github.com/grosser/xhr_redirect.git"
 OLD_GIT_PLUGIN_COMMITS = ['04f21e015f5419a2383fb430f2428081317ffd95', '1cd9a5bee5cea9b90719ef84dc75616ea2a0ba59', '4a0c0fb267f6047d6f7799fa1d5311c80e887072', '581f516c4667cd0d95ee3ceb8de46770e3454b56']
 SVN_PLUGIN = "http://small-plugins.googlecode.com/svn/trunk/will_paginate_acts_as_searchable"
 
+def executable
+  File.exist?("#{TEST_RAILS}/script/plugin") ? 'script/plugin' : 'rails plugin'
+end
+
 def install_plugin(uri, options='')
   name = uri.match(%r{/([^/]+?)(\.git)?$})[1]
   plugin_folder = "#{TEST_RAILS}/vendor/plugins/#{name}"
   `rm -rf #{plugin_folder}`
-  `cd #{TEST_RAILS} && script/plugin install #{uri} #{options}`
+  `cd #{TEST_RAILS} && #{executable} install #{uri} #{options}`
   [name, plugin_folder]
 end
 
@@ -40,7 +44,7 @@ describe 'tracked_plugins' do
   end
 
   def script_plugin(cmd, args)
-    `cd #{TEST_RAILS} && script/plugin #{cmd} #{args}`
+    `cd #{TEST_RAILS} && #{executable} #{cmd} #{args}`
   end
 
   after :all do
@@ -97,7 +101,7 @@ describe 'tracked_plugins' do
     end
 
     it "writes correct installed_at" do
-      plugin_info[:installed_at].should be_close(Time.now, 5)
+      plugin_info[:installed_at].should be_close(Time.now, 10)
     end
 
     it "writes correct uri" do
