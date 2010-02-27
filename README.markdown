@@ -12,6 +12,8 @@ Install again so that plugin meta data is available for tracked_plugins too.
     script/plugin install --force git://github.com/grosser/tracked_plugins.git
 
 # Usage
+Use `rails plugin` instead of `script/plugin` when your on rails 3
+
 ###Install
 As usual:
     script/plugin install git://github.com/grosser/parallel_specs.git
