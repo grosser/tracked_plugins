@@ -7,8 +7,12 @@ TEST_RAILS = File.join(current, 'spec', 'testing_rails')
 # cleanup old test rails project
 `rm -rf #{TEST_RAILS}`
 
-# create a new test rails project that has this plugin installed
-`cd #{current}/spec && rails testing_rails`
+# create a new test rails project
+rails_cmd = ENV['RAILS'] || 'rails'
+puts "Using #{rails_cmd}:"
+`cd #{current}/spec && #{rails_cmd} testing_rails`
+
+# install the current plugin
 copy = "#{TEST_RAILS}/vendor/plugins/#{File.basename(current)}"
 `ln -s #{current} #{copy}`
 `cd #{TEST_RAILS} && ruby -e 'load "#{copy}/install.rb"'` # simulate install hook
