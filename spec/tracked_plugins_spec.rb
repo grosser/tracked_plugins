@@ -1,19 +1,22 @@
 require 'yaml'
+require 'rake'
+
 current = File.expand_path(File.dirname(File.dirname(__FILE__)))
 TEST_RAILS = File.join(current, 'spec', 'testing_rails')
 
 # cleanup old test rails project
-`rm -rf #{TEST_RAILS}`
+sh "rm -rf #{TEST_RAILS}"
 
 # create a new test rails project
-rails_cmd = ENV['RAILS'] || 'rails'
+rails_cmd = ENV['RAILS'] || 'rails new'
 puts "Using #{rails_cmd}:"
-`cd #{current}/spec && #{rails_cmd} testing_rails`
+sh "cd #{current}/spec && #{rails_cmd} testing_rails > /dev/null"
 
 # install the current plugin
 copy = "#{TEST_RAILS}/vendor/plugins/#{File.basename(current)}"
-`ln -s #{current} #{copy}`
-`cd #{TEST_RAILS} && ruby -e 'load "#{copy}/install.rb"'` # simulate install hook
+sh "mkdir -p #{File.dirname(copy)}"
+sh "ln -s #{current} #{copy}"
+sh %Q{cd #{TEST_RAILS} && ruby -e 'load "#{copy}/install.rb"'} # simulate install hook
 
 GIT_PLUGIN = "git://github.com/grosser/xhr_redirect.git"
 OLD_GIT_PLUGIN_COMMITS = ['04f21e015f5419a2383fb430f2428081317ffd95', '1cd9a5bee5cea9b90719ef84dc75616ea2a0ba59', '4a0c0fb267f6047d6f7799fa1d5311c80e887072', '581f516c4667cd0d95ee3ceb8de46770e3454b56']
@@ -26,8 +29,8 @@ end
 def install_plugin(uri, options='')
   name = uri.match(%r{/([^/]+?)(\.git)?$})[1]
   plugin_folder = "#{TEST_RAILS}/vendor/plugins/#{name}"
-  `rm -rf #{plugin_folder}`
-  `cd #{TEST_RAILS} && #{executable} install #{uri} #{options}`
+  sh "rm -rf #{plugin_folder}"
+  sh "cd #{TEST_RAILS} && #{executable} install #{uri} #{options} > /dev/null"
   [name, plugin_folder]
 end
 
