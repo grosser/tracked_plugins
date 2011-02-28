@@ -9,7 +9,6 @@ sh "rm -rf #{TEST_RAILS}"
 
 # create a new test rails project
 rails_cmd = ENV['RAILS'] || 'rails new'
-puts "Using #{rails_cmd}:"
 sh "cd #{current}/spec && #{rails_cmd} testing_rails > /dev/null"
 
 # install the current plugin
@@ -30,7 +29,7 @@ def install_plugin(uri, options='')
   name = uri.match(%r{/([^/]+?)(\.git)?$})[1]
   plugin_folder = "#{TEST_RAILS}/vendor/plugins/#{name}"
   sh "rm -rf #{plugin_folder}"
-  sh "cd #{TEST_RAILS} && #{executable} install #{uri} #{options} > /dev/null"
+  sh "cd #{TEST_RAILS} && #{executable} install #{uri} #{options}"
   [name, plugin_folder]
 end
 
@@ -75,7 +74,7 @@ describe 'tracked_plugins' do
     end
 
     it "writes correct installed_at" do
-      plugin_info[:installed_at].should be_close(Time.now, 5)
+      plugin_info[:installed_at].should be_withing(5).of(Time.now)
     end
 
     it "writes correct uri" do
@@ -106,7 +105,7 @@ describe 'tracked_plugins' do
     end
 
     it "writes correct installed_at" do
-      plugin_info[:installed_at].should be_close(Time.now, 10)
+      plugin_info[:installed_at].should be_within(10).of(Time.now)
     end
 
     it "writes correct uri" do
@@ -180,7 +179,7 @@ describe 'tracked_plugins' do
     before :all do
       @uri = GIT_PLUGIN
       @name, @plugin_folder = install_plugin(@uri)
-      #`rm -rf #{@plugin_folder}/../#{File.basename(SVN_PLUGIN)}`
+      `rm -rf #{@plugin_folder}/../#{File.basename(SVN_PLUGIN)}`
     end
 
     def list_info
@@ -250,6 +249,15 @@ describe 'tracked_plugins' do
       script_plugin(:info, @name).should include('updateable: Unknown')
     end
 
+    it "only shows name when no info is available" do
+      begin
+        `mv #{info_file} #{info_file}.bak`
+        script_plugin(:info, @name).strip.should == @name
+      ensure
+        `mv #{info_file}.bak #{info_file}`
+      end
+    end
+
     describe '--log' do
       before do
         change_info(:revision => OLD_GIT_PLUGIN_COMMITS[0])
@@ -266,11 +274,6 @@ describe 'tracked_plugins' do
       it "does not show current in log" do
         script_plugin(:info, "#{@name} --log").split(OLD_GIT_PLUGIN_COMMITS[1])[1].should_not include(OLD_GIT_PLUGIN_COMMITS[0])
       end
-    end
-
-    it "only shows name when no info is available" do
-      `rm #{info_file}`
-      script_plugin(:info, @name).strip.should == @name
     end
   end
 

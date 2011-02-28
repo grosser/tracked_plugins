@@ -20,7 +20,7 @@ module Commands
             puts "Plugin is up to date: #{name}#{branch} (#{info[:revision]})"
           else
             puts "Reinstalling plugin: #{name}#{branch} (#{info[:revision]})"
-            command = (@base_command.script_name == 'rails' ? 'rails plugin' : @base_command.script_name)
+            command = (@base_command.script_name == 'rails' ? 'rails plugin' : 'script/plugin')
             revision_arg = (info[:branch] ? " --revision #{info[:branch]}" : '')
             `#{command} install --force #{info[:uri]}#{revision_arg}`
           end
