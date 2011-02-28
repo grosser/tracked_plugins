@@ -1,6 +1,4 @@
-require 'rubygems'
 require 'yaml'
-
 current = File.expand_path(File.dirname(File.dirname(__FILE__)))
 TEST_RAILS = File.join(current, 'spec', 'testing_rails')
 
