@@ -1,5 +1,5 @@
 task :default do
-  sh "rspec ../../spec"
+  sh "rspec spec"
 end
 
 task :rails2 do

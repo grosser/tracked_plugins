@@ -74,7 +74,7 @@ describe 'tracked_plugins' do
     end
 
     it "writes correct installed_at" do
-      plugin_info[:installed_at].should be_withing(5).of(Time.now)
+      plugin_info[:installed_at].should be_within(5).of(Time.now)
     end
 
     it "writes correct uri" do
@@ -134,6 +134,11 @@ describe 'tracked_plugins' do
         @uri = GIT_PLUGIN
         @branch = 'old_branch'
         @name, @plugin_folder = install_plugin(@uri, "--revision #{@branch}")
+
+        # patch old init.rb for rails 3
+        file = "#{@plugin_folder}/init.rb"
+        content = File.read(file)
+        File.open(file, 'w'){|f| f.write content.sub('RAILS_GEM_VERSION','Rails::VERSION::STRING') }
       end
 
       it "writes correct revision for git" do
