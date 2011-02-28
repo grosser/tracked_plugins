@@ -4,9 +4,6 @@ require 'old_script_plugin'
 require 'active_support/core_ext/array'
 require 'active_support/core_ext/module'
 
-# .to_s(:db)
-require 'active_support/core_ext/time/conversions'
-
 # remove everything we no longer need
 [:List, :Update, :Discover, :Unsource, :Sources, :Info].each{|c| Commands.send(:remove_const,c)}
 
