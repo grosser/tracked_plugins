@@ -74,7 +74,7 @@ With available updates and `--log`
 # TODO
  - `rails plugin update all`
  - `rails plugin info all`
- - get rails core to swap old script/plugin with this
+ - get rails core to swap old script/plugin with this [vote/complain here](https://rails.lighthouseapp.com/projects/8994/tickets/4069-add-plugin-info-update-list-as-tracked_plugins-does)
 
 Author
 ======
