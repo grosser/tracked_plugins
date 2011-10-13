@@ -72,6 +72,7 @@ With available updates and `--log`
     115e7a802905c06058444764b059763edc06d277 3 months ago micro doc change
 
 # TODO
+ - add test for uninstall.rb
  - move old_script_plugin from lib folder to li/tracked_plugins
  - make specs faster by cloning local copy of a repo
  - fix specs
