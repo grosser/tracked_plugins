@@ -1,3 +1,4 @@
+# Fix Rails 2 and Rails 3.0 script files. Rails 3.1 works out of the box
 rails_2 = <<-EOF
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../config/boot'
