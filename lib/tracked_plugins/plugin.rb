@@ -41,8 +41,8 @@ class Plugin
   def self.checksum(dir)
     files = (Dir["#{dir}/**/*"]-["#{dir}/#{INFO_STORAGE}"]).reject{|f| File.directory?(f)}
     content = files.map{|f| File.read(f)}.join
-    require 'md5'
-    MD5.md5(content).to_s
+    require 'digest/md5'
+    Digest::MD5.hexdigest(content).to_s
   end
 
   def self.locally_modified_info(dir)
