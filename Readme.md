@@ -72,6 +72,9 @@ With available updates and `--log`
     115e7a802905c06058444764b059763edc06d277 3 months ago micro doc change
 
 # TODO
+ - move old_script_plugin from lib folder to li/tracked_plugins
+ - make specs faster by cloning local copy of a repo
+ - fix specs
  - `rails plugin update all`
  - `rails plugin info all`
  - get rails core to swap old script/plugin with this [vote/complain here](https://rails.lighthouseapp.com/projects/8994/tickets/4069-add-plugin-info-update-list-as-tracked_plugins-does)
