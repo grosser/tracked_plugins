@@ -1,38 +1,44 @@
-With tracked_plugins plguin installation stays the same and new meta information
-(url / branch / revision / installed_at / plugin-locally-hacked? / ...) is stored <-> used to update/list plugins.
+There is a plugin in vendor/plugins and you don`t know where it came from ?
 
- - simple updating through stored url/branch
- - list available plugin updates
- - locally modified(aka hacked) indicator
+ - simple plugin updates through stored plugin url+branch
+ - see available plugin updates (with commit messages)
+ - see locally modified(aka hacked) plugins
+ - see url / branch / revision / installed_at of installed plugins
  - ...
 
-Use `script/plugin` instead of `rails plugin` on Rails 2
+Rails 2: Use `script/plugin` instead of `rails plugin`
 
 # Install
+
     rails plugin install git://github.com/grosser/tracked_plugins.git
+
 Reinstall so plugin meta data is available for tracked_plugins too.
+
     rails plugin install --force git://github.com/grosser/tracked_plugins.git
 
 # Usage
-Meta info is only available for newly installed plugins.
-
+Meta info/updates are only available for newly installed plugins.
 
 ### Install
 As usual:
+
     rails plugin install git://github.com/grosser/parallel_tests.git
 
 ### List
 With revision and installed_at date
+
     rails plugin list
     parallel_tests git://github.com/grosser/parallel_tests.git b195927a98aa351fcefef20730a2fdad7ff3efd5 2010-01-10 15:46:44
 
 ### Update
 Already most recent revision
+
     rails plugin update parallel_tests
 
     Plugin is up to date: parallel_tests (b195927a98aa351fcefef20730a2fdad7ff3efd5)
 
 Update needed
+
     rails plugin update parallel_tests
 
     Reinstalling plugin: parallel_tests (b195927a98aa351fcefef20730a2fdad7ff3efd5)
@@ -47,6 +53,7 @@ Update needed
  - `--log` == show available updates
 
 Already up to date and unmodified
+
     rails plugin info parallel_tests
 
     checksum: 8a6d69d6c7fb0928ccae8b451a2914eb
@@ -57,6 +64,7 @@ Already up to date and unmodified
     uri: git://github.com/grosser/parallel_tests.git
 
 With available updates and `--log`
+
     rails plugin info --log parallel_tests
 
     checksum: 3b243eaad567166d1538a5ffad31fec8
