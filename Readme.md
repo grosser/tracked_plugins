@@ -1,3 +1,5 @@
+**Update** Use **[Vendorer](https://github.com/grosser/vendorer)**, its not entagled with rails / simpler. 
+
 There is a plugin in vendor/plugins and you don`t know where it came from ?
 
  - simple plugin updates through stored plugin url+branch
